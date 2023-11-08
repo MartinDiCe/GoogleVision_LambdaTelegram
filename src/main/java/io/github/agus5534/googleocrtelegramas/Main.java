@@ -15,7 +15,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Main implements RequestHandler<Map<String,String>, String> {
     public static FileCreator mainFolder = new FileCreator(new File(System.getProperty("user.home")), "elecciones-tests/");
     public static FileCreator sortedPolygons = new FileCreator(mainFolder.getFile(), "sortedPolygons.txt");
-    public static final boolean debugMode = true;
+    public static final boolean debugMode = true; // TRUE = USA RESOURCES
 
     @Override
     public String handleRequest(Map<String,String> event, Context context)  {
@@ -33,7 +33,7 @@ public class Main implements RequestHandler<Map<String,String>, String> {
             return;
         }
 
-        String tel = "/telegramas/telegrama-"+ ThreadLocalRandom.current().nextInt(1, 49) + ".tif"; // En caso de agregar más, renombrar a telX.tiff y mover el bound de 5 por uno más por cada archivo
+        String tel = "/telegramas/telegrama-"+ ThreadLocalRandom.current().nextInt(1, 21) + ".tif"; // En caso de agregar más, renombrar a telX.tiff y mover el bound de 5 por uno más por cada archivo
 
         TimingsReport.report("Seleccionado Telegrama");
 
