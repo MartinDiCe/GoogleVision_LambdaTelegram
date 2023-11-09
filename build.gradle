@@ -27,7 +27,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.5'
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.2'
-
+    implementation 'com.drewnoakes:metadata-extractor:2.16.0'
 
 }
 
