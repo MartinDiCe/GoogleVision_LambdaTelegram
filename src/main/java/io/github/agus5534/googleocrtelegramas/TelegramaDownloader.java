@@ -1,10 +1,8 @@
 package io.github.agus5534.googleocrtelegramas;
 
-import io.github.agus5534.googleocrtelegramas.models.DatosTelegrama;
 import io.github.agus5534.googleocrtelegramas.ocr.TextReader;
 import io.github.agus5534.googleocrtelegramas.utils.files.FileCreator;
 import io.github.agus5534.googleocrtelegramas.utils.timings.TimingsReport;
-import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
