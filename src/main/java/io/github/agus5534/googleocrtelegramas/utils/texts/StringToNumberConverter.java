@@ -6,26 +6,24 @@ import java.util.Map;
 public class StringToNumberConverter {
 
     public static int convert(String value) {
-        if ("-1".equals(value)) {
+        if (value.isEmpty()) {
             return -1;
         }
 
-        if (isNumeric(value)) {
-            return Integer.parseInt(value);
+        int convertedValue = customStringToNumber(value);
+
+        if (convertedValue != -1 || !value.contains("-1")) {
+            return convertedValue;
         } else {
-            return customStringToNumber(value);
+            return -1;
         }
     }
+
     private static int customStringToNumber(String value) {
         String lowerCaseValue = value.toLowerCase();
         StringBuilder result = new StringBuilder();
-        boolean foundMinusOne = false;
 
         for (char character : lowerCaseValue.toCharArray()) {
-            if (foundMinusOne) {
-                return -1;
-            }
-
             if (Character.isDigit(character)) {
                 result.append(character);
             } else {
@@ -33,22 +31,11 @@ public class StringToNumberConverter {
                 if (mappedValue != null) {
                     result.append(mappedValue);
                 } else {
-                    result.append("-1");
-                    foundMinusOne = true;
+                    return -1;
                 }
             }
         }
-        return Integer.parseInt(result.toString());
-    }
-
-
-    private static boolean isNumeric(String text) {
-        try {
-            Integer.parseInt(text);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
+        return result.toString().equals("-1") ? -1 : Integer.parseInt(result.toString());
     }
 
     private static final Map<Character, Integer> charToNumberMap = new HashMap<>();
@@ -83,5 +70,4 @@ public class StringToNumberConverter {
         charToNumberMap.put('+', 7);
         charToNumberMap.put('&', 8);
     }
-
 }

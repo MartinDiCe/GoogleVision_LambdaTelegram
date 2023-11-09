@@ -91,4 +91,9 @@ public class FileCreator {
     public List<FileCreator> getParentFiles() {
         return parentFiles;
     }
+
+    public File getDirectory() {
+        return file;
+    }
+
 }

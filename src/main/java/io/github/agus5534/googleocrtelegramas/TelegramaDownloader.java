@@ -48,12 +48,7 @@ public class TelegramaDownloader {
         TimingsReport.report("Creado .jpg del telegrama");
 
         try {
-            DatosTelegrama mesaInfo = TextReader.read(jpegImage);
-            JSONObject mesaInfoJSON = new JSONObject(mesaInfo);
-
-            TimingsReport.report("JSONObject construido");
-
-            System.out.println(mesaInfoJSON.toString(2));
+            TextReader.read(jpegImage);
 
         } catch (IOException e) {
             e.printStackTrace();
