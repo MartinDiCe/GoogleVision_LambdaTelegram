@@ -3,20 +3,18 @@ package io.github.agus5534.googleocrtelegramas;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.drew.imaging.ImageProcessingException;
-import io.github.agus5534.googleocrtelegramas.exceptions.AnnotateImageException;
 import io.github.agus5534.googleocrtelegramas.exceptions.ErrorLogger;
-import io.github.agus5534.googleocrtelegramas.utils.files.FileCreator;
-import io.github.agus5534.googleocrtelegramas.utils.files.ImageProcessor;
+import io.github.agus5534.googleocrtelegramas.exceptions.ImageProcessorException;
+import io.github.agus5534.googleocrtelegramas.utils.files.*;
 
-import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Clase principal que implementa la interfaz RequestHandler para procesar imágenes en Lambda.
+ */
 public class Main implements RequestHandler<Map<String, String>, Map<String, Integer>> {
-    public static FileCreator mainFolder = new FileCreator(new File(System.getProperty("user.home")), "elecciones-tests/");
-    public static final boolean debugMode = true; // TRUE = USA RESOURCES
 
     /**
      * Maneja la solicitud Lambda para procesar imágenes y devolver los resultados.
@@ -25,49 +23,36 @@ public class Main implements RequestHandler<Map<String, String>, Map<String, Int
      * @param context El contexto de la ejecución de Lambda.
      * @return Un mapa con los resultados procesados.
      */
+    @Override
     public Map<String, Integer> handleRequest(Map<String, String> event, Context context) {
         Map<String, Integer> result = new HashMap<>();
 
         try {
-            List<Integer> results = ImageProcessor.processImages();
+            String imageUrl = event.get("image");
+
+            List<Integer> results = ImageProcessor.processImage(imageUrl);
             LambdaLogger lambdaLogger = context.getLogger();
 
             if (results.size() >= 7) {
-                result.put("up", results.get(0));
-                result.put("lla", results.get(1));
-                result.put("nulos", results.get(2));
-                result.put("recurridos", results.get(3));
-                result.put("impugnados", results.get(4));
-                result.put("blancos", results.get(5));
-                result.put("total", results.get(6));
-            } else {
+                Map<String, Integer> resultMap = new HashMap<>();
+                resultMap.put("up", results.get(0));
+                resultMap.put("lla", results.get(1));
+                resultMap.put("nulos", results.get(2));
+                resultMap.put("recurridos", results.get(3));
+                resultMap.put("impugnados", results.get(4));
+                resultMap.put("blancos", results.get(5));
+                resultMap.put("total", results.get(6));
+
+                result.put("results", -1);
                 lambdaLogger.log("No hay suficientes resultados para procesar.");
+            } else {
+                result.put("results", results.get(0));
             }
             ErrorLogger.logResults(lambdaLogger, results);
-        } catch (IOException | AnnotateImageException e) {
-            ErrorLogger.logError(context.getLogger(), e);
-        } catch (ImageProcessingException e) {
+        } catch (ImageProcessorException e) {
             throw new RuntimeException(e);
         }
-        return result;
-    }
 
-    /**
-     * Método principal para ejecutar localmente en modo de depuración.
-     *
-     * @param args Argumentos de la línea de comandos (no se utilizan).
-     */
-    public static void main(String[] args) {
-        if (!debugMode) {
-            return;
-        }
-        try {
-            List<Integer> results = ImageProcessor.processImages();
-            System.out.println("Resultados: " + results);
-        } catch (IOException | AnnotateImageException e) {
-            e.printStackTrace();
-        } catch (ImageProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        return result;
     }
 }
