@@ -47,6 +47,7 @@ public class Main implements RequestHandler<Map<String, String>, Map<String, Int
                 lambdaLogger.log("No hay suficientes resultados para procesar.");
             } else {
                 result.put("results", results.get(0));
+                lambdaLogger.log("Procesamiento de la imagen completado con éxito.");
             }
             ErrorLogger.logResults(lambdaLogger, results);
         } catch (ImageProcessorException e) {
