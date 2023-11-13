@@ -8,6 +8,7 @@ import io.github.agus5534.googleocrtelegramas.exceptions.AnnotateImageException;
 import io.github.agus5534.googleocrtelegramas.ocr.TextReader;
 import io.github.agus5534.googleocrtelegramas.utils.files.FileCreator;
 import io.github.agus5534.googleocrtelegramas.utils.files.ImageCropper;
+import io.github.agus5534.googleocrtelegramas.utils.files.ImageProcessor;
 import io.github.agus5534.googleocrtelegramas.utils.timings.TimingsReport;
 
 import javax.imageio.ImageIO;
@@ -40,35 +41,7 @@ public class Main implements RequestHandler<Map<String,String>, String> {
             return;
         }
 
-        String tel = "/telegramas/telegrama-1.tif";
-        var finalURL = Main.class.getResource(tel);
-
-        byte[] bytes;
-        try {
-            assert finalURL != null;
-            bytes = Files.readAllBytes(new File(finalURL.toURI()).toPath());
-        } catch (IOException | URISyntaxException e) {
-            throw new RuntimeException("Ha ocurrido un error al buscar los resources.", e);
-        }
-
-        TimingsReport.report("Telegrama convertido a bytes");
-
-        String outputFolder = mainFolder.getDirectory().getAbsolutePath();
-        ImageCropper.setOutputFolder(new File(outputFolder));
-
-        BufferedImage fullImage = ImageIO.read(new ByteArrayInputStream(bytes));
-
-        int numSections = 7;
-        List<Integer> results = new ArrayList<>();
-
-        BufferedImage[] croppedImages = ImageCropper.cropImageVertically(fullImage, numSections);
-        TimingsReport.report("Recorte de imagenes en 7");
-
-        for (BufferedImage croppedImage : croppedImages) {
-            int result = TextReader.read(croppedImage);
-            results.add(result);
-        }
-        TimingsReport.report("Recortes Procesados");
+        List<Integer> results = ImageProcessor.processImages();
 
         System.out.println("Resultados: " + results);
 
