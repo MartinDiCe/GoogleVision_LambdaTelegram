@@ -3,22 +3,31 @@ package io.github.agus5534.googleocrtelegramas.utils.texts;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Clase para convertir cadenas de texto en números según un mapeo predefinido.
+ */
 public class StringToNumberConverter {
 
+    /**
+     * Convierte una cadena de texto en un número utilizando un mapeo predefinido.
+     *
+     * @param value Cadena de texto a convertir.
+     * @return El número convertido, o -1 si la cadena está vacía o nula.
+     */
     public static int convert(String value) {
-        if (value.isEmpty()) {
+        if (value == null || value.isEmpty()) {
             return -1;
         }
 
-        int convertedValue = customStringToNumber(value);
-
-        if (convertedValue != -1 || !value.contains("-1")) {
-            return convertedValue;
-        } else {
-            return -1;
-        }
+        return customStringToNumber(value);
     }
 
+    /**
+     * Convierte una cadena de texto en un número utilizando un mapeo predefinido.
+     *
+     * @param value Cadena de texto a convertir.
+     * @return El número convertido, o -1 si no se puede convertir.
+     */
     private static int customStringToNumber(String value) {
         String lowerCaseValue = value.toLowerCase();
         StringBuilder result = new StringBuilder();
@@ -35,9 +44,17 @@ public class StringToNumberConverter {
                 }
             }
         }
-        return result.toString().equals("-1") ? -1 : Integer.parseInt(result.toString());
+
+        try {
+            return Integer.parseInt(result.toString());
+        } catch (NumberFormatException e) {
+            return -1;
+        }
     }
 
+    /**
+     * Mapeo de caracteres a números.
+     */
     private static final Map<Character, Integer> charToNumberMap = new HashMap<>();
     static {
         charToNumberMap.put('o', 0);

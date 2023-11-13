@@ -3,15 +3,25 @@ package io.github.agus5534.googleocrtelegramas.ocr;
 import com.google.cloud.vision.v1.*;
 import com.google.protobuf.ByteString;
 import io.github.agus5534.googleocrtelegramas.exceptions.AnnotateImageException;
-import io.github.agus5534.googleocrtelegramas.utils.timings.TimingsReport;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Clase que encapsula la lógica para realizar la detección de texto utilizando la API de Google Cloud Vision.
+ */
 public class GoogleCloudVisionAPI {
-    public static List<String> performTextDetection(ByteString imageBytes, String languageHint, String languageHint2) throws AnnotateImageException, IOException {
+
+    /**
+     * Realiza la detección de texto utilizando la API de Google Cloud Vision.
+     *
+     * @param imageBytes Bytes de la imagen a procesar.
+     * @return Lista de textos detectados en la imagen.
+     * @throws AnnotateImageException Si ocurre un error durante la anotación de la imagen.
+     * @throws IOException           Si ocurre un error de entrada/salida durante la ejecución.
+     */
+    public static List<String> performTextDetection(ByteString imageBytes) throws AnnotateImageException, IOException {
         List<String> textos = new ArrayList<>();
 
         Feature feat = Feature.newBuilder()
@@ -23,7 +33,7 @@ public class GoogleCloudVisionAPI {
         ImageContext imageContext = ImageContext.newBuilder()
                 .addRepeatedField(ImageContext.getDescriptor().findFieldByNumber(ImageContext.LANGUAGE_HINTS_FIELD_NUMBER), "es")
                 .addRepeatedField(ImageContext.getDescriptor().findFieldByNumber(ImageContext.LANGUAGE_HINTS_FIELD_NUMBER), "en")
-                .setCropHintsParams(CropHintsParams.newBuilder().addAllAspectRatios(Arrays.asList(0.9f)).build())
+                .setCropHintsParams(CropHintsParams.newBuilder().addAllAspectRatios(List.of(0.9f)).build())
                 .setWebDetectionParams(WebDetectionParams.newBuilder().setIncludeGeoResults(true).build())
                 .build();
 
@@ -35,8 +45,6 @@ public class GoogleCloudVisionAPI {
                     .setImage(img)
                     .setImageContext(imageContext)
                     .build();
-
-            TimingsReport.report("Request enviado");
 
             BatchAnnotateImagesResponse responses = client.batchAnnotateImages(List.of(request));
 
@@ -52,7 +60,8 @@ public class GoogleCloudVisionAPI {
                 }
             }
 
-            TimingsReport.report("Respuesta obtenida");
+        } catch (IOException | AnnotateImageException e) {
+            throw e;
         }
 
         return textos;

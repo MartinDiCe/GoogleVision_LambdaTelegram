@@ -1,5 +1,8 @@
 package io.github.agus5534.googleocrtelegramas.utils.files;
 
+import com.drew.imaging.ImageProcessingException;
+
+import java.awt.Point;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -7,19 +10,39 @@ import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
+/**
+ * Clase que proporciona métodos para recortar y procesar imágenes.
+ */
 public class ImageCropper {
 
     private static File outputFolder;
     private static final double BORDER_DISCARD_PERCENTAGE = 1.0;
 
+    /**
+     * Establece la carpeta de salida para guardar las imágenes procesadas.
+     *
+     * @param folder Carpeta de salida.
+     */
     public static void setOutputFolder(File folder) {
         outputFolder = folder;
     }
 
-    public static BufferedImage[] cropImageVertically(BufferedImage fullImage, int numSections) {
+    /**
+     * Divide una imagen verticalmente en varias secciones y aplica varios procesamientos a cada sección.
+     *
+     * @param fullImage   Imagen completa a procesar.
+     * @param numSections Número de secciones en las que dividir la imagen.
+     * @return Arreglo de imágenes procesadas.
+     * @throws IllegalArgumentException Si la carpeta de salida no está configurada.
+     */
+    public static BufferedImage[] cropImageVertically(BufferedImage fullImage, int numSections) throws ImageProcessingException {
+        if (outputFolder == null) {
+            throw new IllegalArgumentException("La carpeta de salida no ha sido configurada. "
+                    + "Configura la carpeta de salida utilizando setOutputFolder antes de llamar a este método.");
+        }
+
         int imageWidth = fullImage.getWidth();
         int imageHeight = fullImage.getHeight();
-
         int sectionHeight = imageHeight / numSections;
 
         BufferedImage[] croppedImages = new BufferedImage[numSections];
@@ -33,55 +56,58 @@ public class ImageCropper {
 
             BufferedImage croppedImage = fullImage.getSubimage(0, y + discardTop, imageWidth, height - discardTop - discardBottom);
 
-            cropSides(croppedImage,5,50);
-
-            invertColors(croppedImage);
-
-            enhanceBlackColors(croppedImage, 200);
-
-            reduceNoise(croppedImage);
-
-            removeBlackLines(croppedImage,50,60,30);
-
-            invertColors(croppedImage);
-
-            removeBackgroundNoise(croppedImage,2,40);
-
-            invertColors(croppedImage);
-
-            enhanceBlackColors(croppedImage, 800);
+            processImage(croppedImage);
 
             croppedImages[i] = croppedImage;
-
         }
 
-        if (outputFolder != null) {
-            saveImages(croppedImages);
-        } else {
-            System.out.println("Error: outputFolder no ha sido configurado. No se guardarán las imágenes.");
-        }
+        saveImages(croppedImages);
 
         return croppedImages;
     }
 
-    private static BufferedImage cropSides(BufferedImage image, int leftCrop, int rightCrop) {
-        int newWidth = image.getWidth() - leftCrop - rightCrop;
-        int x = leftCrop;
-        int y = 0;
-        int width = newWidth;
-        int height = image.getHeight();
-
-        BufferedImage croppedImage = new BufferedImage(width, height, image.getType());
-        Graphics2D g = croppedImage.createGraphics();
-        g.drawImage(image, 0, 0, width, height, x, y, x + width, y + height, null);
-        g.dispose();
-
-        // Actualizar la imagen original con la imagen recortada
-        image.setData(croppedImage.getData());
-
-        return croppedImage;
+    /**
+     * Procesa una imagen aplicando varios ajustes.
+     *
+     * @param image Imagen a procesar.
+     */
+    private static void processImage(BufferedImage image) {
+        cropSides(image, 5, 50);
+        invertColors(image);
+        enhanceBlackColors(image, 200);
+        reduceNoise(image);
+        removeBlackLines(image, 50, 60);
+        invertColors(image);
+        removeBackgroundNoise(image, 2, 40);
+        invertColors(image);
+        enhanceBlackColors(image, 800);
     }
 
+    /**
+     * Recorta los lados izquierdo y derecho de una imagen.
+     *
+     * @param image     Imagen a recortar.
+     * @param leftCrop  Píxeles a recortar del lado izquierdo.
+     * @param rightCrop Píxeles a recortar del lado derecho.
+     */
+    private static void cropSides(BufferedImage image, int leftCrop, int rightCrop) {
+        int newWidth = image.getWidth() - leftCrop - rightCrop;
+        int y = 0;
+        int height = image.getHeight();
+
+        BufferedImage croppedImage = new BufferedImage(newWidth, height, image.getType());
+        Graphics2D g = croppedImage.createGraphics();
+        g.drawImage(image, 0, 0, newWidth, height, leftCrop, y, leftCrop + newWidth, y + height, null);
+        g.dispose();
+
+        image.setData(croppedImage.getData());
+    }
+
+    /**
+     * Invierte los colores de una imagen.
+     *
+     * @param image Imagen a la que se le invertirán los colores.
+     */
     private static void invertColors(BufferedImage image) {
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
@@ -95,12 +121,18 @@ public class ImageCropper {
         }
     }
 
+    /**
+     * Elimina el ruido de fondo en una imagen.
+     *
+     * @param image          Imagen a procesar.
+     * @param noiseThreshold Umbral de píxeles oscuros que se considerarán ruido.
+     * @param areaThreshold  Umbral del área alrededor de un píxel que se considerará ruido.
+     */
     private static void removeBackgroundNoise(BufferedImage image, int noiseThreshold, int areaThreshold) {
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
                 int darkPixelCount = countDarkPixelsAround(image, x, y, noiseThreshold);
 
-                // Si el área alrededor del píxel tiene suficientes píxeles oscuros, convertir a blanco
                 if (darkPixelCount >= areaThreshold) {
                     image.setRGB(x, y, Color.WHITE.getRGB());
                 }
@@ -108,6 +140,15 @@ public class ImageCropper {
         }
     }
 
+    /**
+     * Cuenta el número de píxeles oscuros alrededor de un píxel específico en una imagen.
+     *
+     * @param image          Imagen a procesar.
+     * @param centerX        Coordenada x del píxel central.
+     * @param centerY        Coordenada y del píxel central.
+     * @param noiseThreshold Umbral de píxeles oscuros.
+     * @return Número de píxeles oscuros alrededor del píxel central.
+     */
     private static int countDarkPixelsAround(BufferedImage image, int centerX, int centerY, int noiseThreshold) {
         int darkPixelCount = 0;
 
@@ -117,7 +158,6 @@ public class ImageCropper {
                     int rgb = image.getRGB(x, y);
                     Color color = new Color(rgb, true);
 
-                    // Contar píxeles suficientemente oscuros
                     if (color.getRed() <= noiseThreshold && color.getGreen() <= noiseThreshold && color.getBlue() <= noiseThreshold) {
                         darkPixelCount++;
                     }
@@ -128,8 +168,12 @@ public class ImageCropper {
         return darkPixelCount;
     }
 
-
-
+    /**
+     * Mejora los colores negros en una imagen mediante la reducción del valor de los píxeles oscuros.
+     *
+     * @param image           Imagen a procesar.
+     * @param enhancementValue Valor de mejora para los colores oscuros.
+     */
     private static void enhanceBlackColors(BufferedImage image, int enhancementValue) {
         try {
             int blackThreshold = 50;
@@ -156,6 +200,11 @@ public class ImageCropper {
         }
     }
 
+    /**
+     * Reduce el ruido en una imagen ajustando píxeles con pocos píxeles oscuros en su entorno.
+     *
+     * @param image Imagen a procesar.
+     */
     private static void reduceNoise(BufferedImage image) {
         int noiseThreshold = 20; // Puedes ajustar este umbral según tus necesidades
 
@@ -167,13 +216,21 @@ public class ImageCropper {
                 int surroundingPixels = getSurroundingPixelsCount(image, x, y, noiseThreshold);
 
                 if (surroundingPixels < 5) {
-
-                     image.setRGB(x, y, Color.WHITE.getRGB());
+                    image.setRGB(x, y, Color.WHITE.getRGB());
                 }
             }
         }
     }
 
+    /**
+     * Cuenta el número de píxeles oscuros alrededor de un píxel específico en una imagen.
+     *
+     * @param image          Imagen a procesar.
+     * @param x              Coordenada x del píxel central.
+     * @param y              Coordenada y del píxel central.
+     * @param noiseThreshold Umbral de píxeles oscuros.
+     * @return Número de píxeles oscuros alrededor del píxel central.
+     */
     private static int getSurroundingPixelsCount(BufferedImage image, int x, int y, int noiseThreshold) {
         int count = 0;
 
@@ -191,10 +248,16 @@ public class ImageCropper {
         return count;
     }
 
-    private static void removeBlackLines(BufferedImage image, int lineWidth, int threshold, int maxGap) {
+    /**
+     * Elimina líneas negras de una imagen basándose en el ancho y umbral proporcionados.
+     *
+     * @param image     Imagen a procesar.
+     * @param lineWidth Ancho de las líneas negras.
+     * @param threshold Umbral para considerar un píxel negro.
+     */
+    private static void removeBlackLines(BufferedImage image, int lineWidth, int threshold) {
         ArrayList<Point> pixelsToAdjust = new ArrayList<>();
 
-        // Buscar líneas negras horizontales
         for (int y = 0; y < image.getHeight(); y++) {
             int blackCount = 0;
             boolean inBlackLine = false;
@@ -229,15 +292,12 @@ public class ImageCropper {
             }
         }
 
-        // Ajustar los píxeles encontrados horizontalmente
         for (Point pixel : pixelsToAdjust) {
             image.setRGB(pixel.x, pixel.y, Color.WHITE.getRGB());
         }
 
-        // Limpiar la lista para la siguiente revisión
         pixelsToAdjust.clear();
 
-        // Buscar líneas negras verticales
         for (int x = 0; x < image.getWidth(); x++) {
             int blackCount = 0;
             boolean inBlackLine = false;
@@ -272,21 +332,27 @@ public class ImageCropper {
             }
         }
 
-        // Ajustar los píxeles encontrados verticalmente
         for (Point pixel : pixelsToAdjust) {
             image.setRGB(pixel.x, pixel.y, Color.WHITE.getRGB());
         }
     }
 
-
-    private static void saveImages(BufferedImage[] images) {
+    /**
+     * Guarda las imágenes procesadas en la carpeta de salida.
+     *
+     * @param images Imágenes a guardar.
+     * @throws ImageProcessingException Si ocurre un error al guardar las imágenes.
+     */
+    private static void saveImages(BufferedImage[] images) throws ImageProcessingException {
         for (int i = 0; i < images.length; i++) {
             try {
                 File outputfile = new File(outputFolder + "/cropped_image_" + i + ".jpg");
                 ImageIO.write(images[i], "jpg", outputfile);
             } catch (IOException e) {
-                e.printStackTrace();
+                String errorMessage = "Error al guardar la imagen procesada " + i + ": " + e.getMessage();
+                throw new ImageProcessingException(errorMessage, e);
             }
         }
     }
+
 }

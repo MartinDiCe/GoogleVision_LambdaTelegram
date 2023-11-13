@@ -8,92 +8,143 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Clase utilitaria para la creación y manipulación de archivos y directorios.
+ */
 public class FileCreator {
     private final String name;
     private final File file;
+    private final List<FileCreator> parentFiles;
 
-    private List<FileCreator> parentFiles;
-
+    /**
+     * Constructor principal.
+     *
+     * @param path          Directorio padre.
+     * @param name          Nombre del archivo o directorio.
+     * @param deleteOnExit  Indica si el archivo debe eliminarse al salir.
+     * @throws RuntimeException Si ocurre un error al inicializar el archivo.
+     */
     public FileCreator(File path, String name, boolean deleteOnExit) {
         this.name = name;
-        file = new File(path + "/" + name);
-        parentFiles = new ArrayList<>();
+        this.file = new File(path, name);
+        this.parentFiles = new ArrayList<>();
 
-        if(!Main.debugMode) { return; }
+        if (!Main.debugMode) {
+            return;
+        }
 
         try {
-            this.init();
+            init(deleteOnExit);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        if(deleteOnExit) {
-            file.deleteOnExit();
+            throw new RuntimeException("Error al inicializar el archivo", e);
         }
     }
+
+    /**
+     * Constructor alternativo.
+     *
+     * @param path Directorio padre.
+     * @param name Nombre del archivo o directorio.
+     */
     public FileCreator(File path, String name) {
         this(path, name, false);
     }
 
-    private void init() throws IOException {
-        if(!file.exists()) {
-            if(this.name.endsWith("/")) {
+    private void init(boolean deleteOnExit) throws IOException {
+        if (!file.exists()) {
+            if (name.endsWith("/")) {
                 file.mkdir();
-
-                return;
+            } else {
+                file.createNewFile();
             }
+        }
 
-            file.createNewFile();
+        if (deleteOnExit) {
+            file.deleteOnExit();
         }
     }
 
+    /**
+     * Obtiene el archivo asociado.
+     *
+     * @return El archivo.
+     */
     public File getFile() {
         return file;
     }
 
+    /**
+     * Obtiene el nombre del archivo o directorio.
+     *
+     * @return El nombre.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Obtiene el contenido del directorio.
+     *
+     * @return Un array de archivos.
+     */
     public File[] getContents() {
-        return getFile().listFiles();
+        return file.listFiles();
     }
 
+    /**
+     * Verifica si el directorio contiene un archivo con el nombre dado.
+     *
+     * @param name Nombre del archivo a verificar.
+     * @return `true` si el archivo existe, de lo contrario `false`.
+     */
     public boolean hasFile(String name) {
-        boolean f = false;
-
         for (File file : getContents()) {
-            if(file == null) { continue; }
-            if(file.getName().equalsIgnoreCase(name)) {
-                f = true;
+            if (file != null && file.getName().equalsIgnoreCase(name)) {
+                return true;
             }
         }
-
-        return f;
+        return false;
     }
 
+    /**
+     * Obtiene un archivo por su nombre.
+     *
+     * @param name Nombre del archivo.
+     * @return El archivo correspondiente al nombre.
+     */
     public File getFile(String name) {
-        File f = null;
-
         for (File file : getContents()) {
-            if(file.getName().equalsIgnoreCase(name)) {
-                f = file;
+            if (file != null && file.getName().equalsIgnoreCase(name)) {
+                return file;
             }
         }
-
-        return f;
+        return null;
     }
 
-    public void registerParentFiles(FileCreator... fileCreator) {
-        Arrays.stream(fileCreator).forEach(parentFiles::add);
+    /**
+     * Registra archivos padres.
+     *
+     * @param fileCreators Arreglo de archivos padres.
+     */
+    public void registerParentFiles(FileCreator... fileCreators) {
+        parentFiles.addAll(Arrays.asList(fileCreators));
     }
 
+    /**
+     * Obtiene la lista de archivos padres.
+     *
+     * @return Lista de archivos padres.
+     */
     public List<FileCreator> getParentFiles() {
         return parentFiles;
     }
 
+    /**
+     * Obtiene el directorio asociado.
+     *
+     * @return El directorio.
+     */
     public File getDirectory() {
         return file;
     }
-
 }
