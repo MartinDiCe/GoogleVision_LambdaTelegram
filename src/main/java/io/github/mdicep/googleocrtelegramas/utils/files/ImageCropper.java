@@ -1,4 +1,4 @@
-package io.github.agus5534.googleocrtelegramas.utils.files;
+package io.github.mdicep.googleocrtelegramas.utils.files;
 
 import com.drew.imaging.ImageProcessingException;
 

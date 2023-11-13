@@ -1,18 +1,16 @@
-package io.github.agus5534.googleocrtelegramas.ocr;
+package io.github.mdicep.googleocrtelegramas.ocr;
 
 import com.google.protobuf.ByteString;
+import io.github.mdicep.googleocrtelegramas.exceptions.AnnotateImageException;
+import io.github.mdicep.googleocrtelegramas.utils.texts.StringToNumberConverter;
+import io.github.mdicep.googleocrtelegramas.utils.texts.TextCleaner;
+import io.github.mdicep.googleocrtelegramas.utils.texts.TextExtractor;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
-
-import io.github.agus5534.googleocrtelegramas.exceptions.AnnotateImageException;
-import io.github.agus5534.googleocrtelegramas.utils.texts.StringToNumberConverter;
-import io.github.agus5534.googleocrtelegramas.utils.texts.TextCleaner;
-import io.github.agus5534.googleocrtelegramas.utils.texts.TextExtractor;
-
-import javax.imageio.ImageIO;
 
 /**
  * Clase que realiza la lectura de texto de una imagen utilizando la API de Google Cloud Vision.
@@ -49,9 +47,8 @@ public class TextReader {
      */
     private static int procesarTextos(String textos) {
         TextExtractor textExtractor = new TextExtractor(textos, 5);
-        int var = StringToNumberConverter.convert(textExtractor.extractText());
 
-        return var;
+        return StringToNumberConverter.convert(textExtractor.extractText());
     }
 }
 

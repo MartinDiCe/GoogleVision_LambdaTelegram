@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group = 'io.github.agus5534'
+group = 'io.github.mdicep'
 version = '1.0-SNAPSHOT'
 
 repositories {
@@ -29,7 +29,7 @@ dependencies {
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.2'
     implementation 'com.drewnoakes:metadata-extractor:2.18.0'
     implementation 'org.slf4j:slf4j-api:1.7.32'
-    implementation 'ch.qos.logback:logback-classic:1.2.6'
+    implementation 'ch.qos.logback:logback-classic:1.2.9'
 
 }
 

@@ -1,4 +1,4 @@
-package io.github.agus5534.googleocrtelegramas.exceptions;
+package io.github.mdicep.googleocrtelegramas.exceptions;
 
 
 public class ImageProcessorException extends Exception {

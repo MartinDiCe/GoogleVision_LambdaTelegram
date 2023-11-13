@@ -1,11 +1,11 @@
-package io.github.agus5534.googleocrtelegramas.utils.texts;
+package io.github.mdicep.googleocrtelegramas.utils.texts;
 
 /**
  * Clase para extraer y procesar texto.
  */
 public class TextExtractor {
     private String text;
-    private int caracteresMax;
+    private final int caracteresMax;
 
     /**
      * Constructor de la clase.

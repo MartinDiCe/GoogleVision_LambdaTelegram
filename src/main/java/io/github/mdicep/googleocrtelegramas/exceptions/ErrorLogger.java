@@ -1,4 +1,4 @@
-package io.github.agus5534.googleocrtelegramas.exceptions;
+package io.github.mdicep.googleocrtelegramas.exceptions;
 
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 

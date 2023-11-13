@@ -1,9 +1,9 @@
-package io.github.agus5534.googleocrtelegramas.utils.files;
+package io.github.mdicep.googleocrtelegramas.utils.files;
 
 import com.drew.imaging.ImageProcessingException;
-import io.github.agus5534.googleocrtelegramas.exceptions.AnnotateImageException;
-import io.github.agus5534.googleocrtelegramas.exceptions.ImageProcessorException;
-import io.github.agus5534.googleocrtelegramas.ocr.TextReader;
+import io.github.mdicep.googleocrtelegramas.exceptions.AnnotateImageException;
+import io.github.mdicep.googleocrtelegramas.exceptions.ImageProcessorException;
+import io.github.mdicep.googleocrtelegramas.ocr.TextReader;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

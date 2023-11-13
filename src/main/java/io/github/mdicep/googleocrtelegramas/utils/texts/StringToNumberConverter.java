@@ -1,4 +1,4 @@
-package io.github.agus5534.googleocrtelegramas.utils.texts;
+package io.github.mdicep.googleocrtelegramas.utils.texts;
 
 import java.util.HashMap;
 import java.util.Map;

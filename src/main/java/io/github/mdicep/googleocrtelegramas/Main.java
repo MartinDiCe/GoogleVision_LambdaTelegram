@@ -1,11 +1,11 @@
-package io.github.agus5534.googleocrtelegramas;
+package io.github.mdicep.googleocrtelegramas;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import io.github.agus5534.googleocrtelegramas.exceptions.ErrorLogger;
-import io.github.agus5534.googleocrtelegramas.exceptions.ImageProcessorException;
-import io.github.agus5534.googleocrtelegramas.utils.files.*;
+import io.github.mdicep.googleocrtelegramas.exceptions.ErrorLogger;
+import io.github.mdicep.googleocrtelegramas.exceptions.ImageProcessorException;
+import io.github.mdicep.googleocrtelegramas.utils.files.ImageProcessor;
 
 import java.util.HashMap;
 import java.util.List;

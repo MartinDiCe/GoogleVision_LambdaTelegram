@@ -1,8 +1,8 @@
-package io.github.agus5534.googleocrtelegramas.ocr;
+package io.github.mdicep.googleocrtelegramas.ocr;
 
 import com.google.cloud.vision.v1.*;
 import com.google.protobuf.ByteString;
-import io.github.agus5534.googleocrtelegramas.exceptions.AnnotateImageException;
+import io.github.mdicep.googleocrtelegramas.exceptions.AnnotateImageException;
 
 import java.io.IOException;
 import java.util.ArrayList;
